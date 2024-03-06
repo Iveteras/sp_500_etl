@@ -1,0 +1,3 @@
+pandas==2.2.1
+yfinance==0.2.37
+cloud-sql-python-connector[pymysql]==1.7.0
