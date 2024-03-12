@@ -2,7 +2,9 @@ from sqlalchemy import create_engine
 import yfinance as yf
 import pandas as pd
 import numpy as np
+import time
 
+start_time = time.time()
 
 ##################### Get assets symbols #####################
 
@@ -82,3 +84,9 @@ with engine.connect() as connection:
     main_df.to_sql(table_info,  con=connection, if_exists='append', index=False)
     connection.commit()
     connection.close()
+
+
+end_time = time.time()
+execution_time = end_time - start_time
+print(execution_time)
+print(error_list)
