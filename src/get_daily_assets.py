@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 import yfinance as yf
 import pandas as pd
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 ##################### Get assets symbols #####################
@@ -29,6 +29,31 @@ with engine.connect() as connection:
 
 df_asset_symbols_and_ids.set_index('asset_symbol', inplace=True)
 
+##################### Check last update #####################
+
+# this is for cases that i forgot to update database
+
+query_last_date = "select max(date) as last_date from info"
+
+with engine.connect() as connection:
+    df_last_update = pd.read_sql(query_last_date, engine)
+    connection.close()
+
+last_date = df_last_update.iloc[0]['last_date']
+today = datetime.now().date()
+
+def get_missed_dates(last_date, today):
+    missed_days = today - last_date
+    
+    dates = []
+    for i in range(missed_days.days): 
+        day = last_date + timedelta(days=i)
+        dates.append(day.strftime('%Y-%m-%d'))
+
+    return dates
+
+missed_dates = get_missed_dates(last_date, today)
+
 
 ##################### Get data #####################
 
@@ -48,20 +73,20 @@ def get_daily_data(asset_symbol,  df_asset_symbols_and_ids, today_date):
 
     return df
 
-today = datetime.today().strftime('%Y-%m-%d')
-
 df_list = []
 error_list = []
 
-for asset_symbol in df_asset_symbols_and_ids.index:
-    
-    try:
-        df = get_daily_data(asset_symbol, df_asset_symbols_and_ids, today)
-        df_list.append(df)
-    except:
-        error_list.append(asset_symbol)
+for day in missed_dates: # this is also to execute all days that i missed
+    today = day
+    for asset_symbol in df_asset_symbols_and_ids.index:
+        
+        try:
+            df = get_daily_data(asset_symbol, df_asset_symbols_and_ids, today)
+            df_list.append(df)
+        except:
+            error_list.append(asset_symbol)
 
-filtered_df_list = [df for df in df_list if not df.empty and not df.isnull().values.all()]
+    filtered_df_list = [df for df in df_list if not df.empty and not df.isnull().values.all()]
 
 main_df = pd.concat(filtered_df_list) # join all data frames
 main_df.index = range(len(main_df)) # fixing index
