@@ -1,18 +1,18 @@
 # S&P 500 ETL
 
-## About
+## :black_nib: About
 
 This is an ETL that takes daily data on all S&P assets and updates itself every day.
 
-## Requirements
+## :heavy_check_mark: Requirements
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## How it works
+## :gear: How it works
 
-[Here](https://github.com/Iveteras/sp_500_etl/tree/main/src) you can uderstand about each step of the project!
+[Here](https://github.com/Iveteras/sp_500_etl/tree/main/src) you can understand about each step of the project!
 
 ### Simple schema of ETL workflow
 
